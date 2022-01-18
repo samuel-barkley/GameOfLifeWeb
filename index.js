@@ -1,4 +1,5 @@
 "use strict"
+import * as d from './drawLib.js';
 
 let Game = {};
 let canvas;
@@ -25,7 +26,7 @@ function update(progress) {
 }
 
 function draw(ctx) {
-    
+    d.drawGrid(ctx, [10, 10])
 }
 
 function loop(timestamp) {
