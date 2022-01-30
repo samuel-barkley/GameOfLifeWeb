@@ -11,11 +11,35 @@ let stopped = false;
 let spaceSizes;
 let nOfSpaces = [30, 30];
 
+let index = 0;
+
 let secondsPassed;
 let oldTimeStamp;
 let fps;
 
 let lastRender = 0;
+
+let thingToDraw = [
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `...ooo.ooo.o...o.o..o.ooo.o.....`,
+    `...o...o.o.oo.oo.o..o.o...o.....`,
+    `...ooo.ooo.o.o.o.o..o.oo..o.....`,
+    `.....o.o.o.o...o.o..o.o...o.....`,
+    `...ooo.o.o.o...o.oooo.ooo.ooo...`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+    `................................`,
+]
 
 window.onload = init;
 
@@ -23,6 +47,7 @@ function init() {
     canvas = document.getElementById("canvas");
     ctx = canvas.getContext("2d");
     window.addEventListener("keydown", keyPressed, false);
+    console.log(thingToDraw.length);
     start();
 }
 
@@ -35,55 +60,45 @@ function start() {
 function createGrid() {
     for (let y = 0; y < nOfSpaces[1]; y++) {
         for (let x = 0; x < nOfSpaces[0]; x++) {
-            gameObjects.push(new Cell(ctx, [x, y]))
+            gameObjects.push(new Cell(ctx, [x, y], isInitAlive([x, y])))
         }
     }
+
     d.drawGrid(ctx, spaceSizes);
 }
 
 function gameLoop(timeStamp) {
-
-    // Calculate the number of seconds passed since the last frame
-    secondsPassed = (timeStamp - oldTimeStamp) / 1000;
-    oldTimeStamp = timeStamp;
-
-    // Calculate fps
-    fps = Math.round(1 / secondsPassed);
-    
     canvas.width = innerWidth;
     canvas.height = innerHeight;
-    checkSurrounding();
 
     // Perform the drawing operation
     draw();
 
-    // The loop function has reached it's end, keep requesting new frames
-    //setTimeout(() => {
+    /* Used to get images from the canvas.
+    let image = new Image();
+    image.src = canvas.toDataURL("image/png");
+    let number = document.createElement("p");
+    let textNode = document.createTextNode(index);
+    number.appendChild(textNode);
+    document.body.appendChild(image);
+    document.body.appendChild(number);
+    index++;*/
+
+    checkSurrounding();
+    setTimeout(() => {
         window.requestAnimationFrame(() => gameLoop(timeStamp));
-    //}, 100) // The delay will make the game easier to follow
+    }, 3000)
 }
 
 function draw() {
     d.blank(ctx);
-
+    d.setLocalGridSize(nOfSpaces);
     for (let i = 0; i < gameObjects.length; i++) {
         if (gameObjects[i].alive) {
             d.drawSquare(ctx, [gameObjects[i].pos[0], gameObjects[i].pos[1]], "red");
         }
-        else {
-            //d.drawSquare(ctx, [gameObjects[i].pos[0], gameObjects[i].pos[1]], "black");
-        }
     }
-    d.drawGrid(ctx, nOfSpaces)
-    // drawFPS();
-}
-
-function drawFPS() {
-    ctx.fillStyle = 'white';
-    ctx.fillRect(0, 0, 120, 50);
-    ctx.font = '25px Arial';
-    ctx.fillStyle = 'black';
-    ctx.fillText("FPS: " + fps, 10, 30);
+    //d.drawGrid(ctx, nOfSpaces)
 }
 
 function checkSurrounding() {
@@ -92,8 +107,22 @@ function checkSurrounding() {
         for (let y = 0; y < nOfSpaces[1]; y++) {
             // Count the nearby population
             let numAlive = isAlive(x - 1, y - 1) + isAlive(x, y - 1) + isAlive(x + 1, y - 1) + isAlive(x - 1, y) + isAlive(x + 1, y) + isAlive(x - 1, y + 1) + isAlive(x, y + 1) + isAlive(x + 1, y + 1);
-            
+            let centerIndex = gridToIndex(x, y);
+
+            if (numAlive == 2) {
+                // Do nothing
+            } else if (numAlive == 3) {
+                // Make alive
+                gameObjects[centerIndex].nextAlive = true;
+            } else {
+                // Make dead
+                gameObjects[centerIndex].nextAlive = false;
+            }
         }
+    }
+
+    for (let i = 0; i < gameObjects.length; i++) {
+        gameObjects[i].alive = gameObjects[i].nextAlive;
     }
 }
 
@@ -120,4 +149,23 @@ function keyPressed(e) {
 // Stops the update cycle of the application.
 function stopUpdates() {
     stopped = true;
+}
+
+function isInitAlive(pos) {
+    if (pos[1] < thingToDraw.length)
+    {
+        if (pos[0] < thingToDraw[pos[1]].length)
+        {
+            switch (thingToDraw[pos[1]].charAt(pos[0])) {
+                case '.':
+                    return false;
+                    break;
+                case 'o':
+                    return true;
+                    break;
+            }
+        }
+    }
+    
+    return false;
 }

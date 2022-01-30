@@ -1,22 +1,8 @@
-let  gridSizeLocal = []
+let gridSizeLocal = []
 export function drawGrid(ctx, gridSize) {
-    /*
-    for (let i = 0; i < gridSize[0]; i++) {
-        drawLine(ctx, [100 * i, 0], [100 * i, gridSize[1]*100]);
-    }
-
-    for (let j = 0; j < gridSize[1]; j++) {
-        drawLine(ctx, [0, 100 * j], [gridSize[0]*100, 100 * j]);
-    }
-
-    drawLine(ctx, [gridSize[0] * 100, 0], [gridSize[0] * 100, gridSize[1]*100])
-    drawLine(ctx, [0, gridSize[1] * 100], [gridSize[0]*100, gridSize[1] * 100])
-    */
-    // TODO: grid generation isn't working properly.
     var w = ctx.canvas.width,
         h = ctx.canvas.height;
-    //console.log("width: " + w + ", height:" + h)
-    gridSizeLocal = [gridSize[0], gridSize[1]]
+
     ctx.beginPath();
     for (var x = 0; x <= w; x += gridSize[0]) {
         ctx.moveTo(x - 0.5, 0);      // 0.5 offset so that 1px lines are crisp
@@ -47,4 +33,8 @@ export function drawLine(ctx, src, dest) {
 
 export function blank(ctx) {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+export function setLocalGridSize(gridSize) {
+    gridSizeLocal = [gridSize[0], gridSize[1]];
 }
